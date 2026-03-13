@@ -10,7 +10,7 @@ app.use(express.json());
 /*
 CLIENTES ENDPOINTS
 */
-const clientesFilePath = path.join(__dirname, "clientes.json");
+const clientesFile = path.join(__dirname, "clientes.json");
 
 function lerClientes() {
     if (!fs.existsSync(clientesFile)) {
