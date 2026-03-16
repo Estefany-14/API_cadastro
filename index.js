@@ -1,6 +1,6 @@
-const express = require('express'); // servidor web
-const fs = require('fs'); // manipulação de arquivos
-const path = require('path'); // manipulação de caminhos
+const express = require('express'); //servidor web
+const fs = require('fs'); //manipulação de arquivos
+const path = require('path'); //manipulação de caminhos
 
 const app = express();
 const port = 3000;
@@ -8,15 +8,16 @@ const port = 3000;
 app.use(express.json());
 
 /*
-CLIENTES ENDPOINTS
+CLIENTES ENDEPOINTS
 */
-const clientesFile = path.join(__dirname, "clientes.json");
+const clientesFile = path.join(__dirname, 'clientes.json');
 
-function lerClientes() {
+function lerclientes() {
     if (!fs.existsSync(clientesFile)) {
         return [];
+
     }
-    const dados = fs.readFileSync(clientesFile, 'utf8');
+    const dados = fs.readFileSync(clientesFile, 'utf-8');
     try {
         return JSON.parse(dados) || [];
     } catch (e) {
@@ -24,33 +25,42 @@ function lerClientes() {
     }
 
 }
+
 function salvarClientes(clientes) {
-    fs.writeFileSync(clientesFile, JSON.stringify(clientes, null, 2), 'utf8');
+    fs.writeFileSync(clientesFile, JSON.stringify(clientes, null, 2), 'utf-8');
 }
 
-
 app.post('/clientes', (req, res) => {
-    const {cpf, nome, idade, endereco, bairro, contato} = req.body
+
+    const { cpf, nome, idade, endereco, bairro, contato } = req.body;
+
     if (!cpf || !nome || !idade || !endereco || !bairro || !contato) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
+    app.get('/clientes', (req, res) => {
 
 
-const clientes = lerClientes();
+    });
+    const clientes = lerclientes();
 
-if(clientes.some(c=>c.cpf === cpf)){
-    return res.status(400).json({ error: 'CPF já cadastrado' });
-}
+    if (clientes.some(c => c.cpf === cpf)) {
+        return res.status(400).json({ error: 'CPF já cadastrado' });
+    }
 
+    const novoCliente = { cpf, nome, idade, endereco, bairro, contato };
+    clientes.push(novoCliente);
+    salvarClientes(clientes);
 
-const novoCliente = {cpf,nome,idade,endereco,bairro,contato};
-clientes.push(novoCliente);
-salvarClientes(clientes);
+    res.status(201).json({ message: 'Cliente cadastrado com sucesso', cliente: novoCliente });
 
-res.status(201).json({message: 'Cliente cadastrado com sucesso', cliente: novoCliente});
 
 });
 
+app.get('/clientes', (req, res) => {
+    const clientes = lerclientes();
+    res.status(200).send(clientes);
+    
+});
 app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+    console.log(`Servidor rodando em http://localhost: ${port}`);
 });
